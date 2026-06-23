@@ -1,0 +1,5 @@
+name = "heic-to-jpg"
+compatibility_date = "2026-06-23"
+
+[assets]
+directory = "."
