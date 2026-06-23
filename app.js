@@ -1,20 +1,17 @@
 (() => {
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
-    const controls = document.getElementById('controls');
     const fileList = document.getElementById('fileList');
+    const actions = document.getElementById('actions');
     const qualitySlider = document.getElementById('qualitySlider');
     const qualityValue = document.getElementById('qualityValue');
     const convertBtn = document.getElementById('convertBtn');
-    const downloadAllBtn = document.getElementById('downloadAllBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
     const clearBtn = document.getElementById('clearBtn');
-    const progressContainer = document.getElementById('progressContainer');
-    const progressBar = document.getElementById('progressBar');
 
     let files = [];
     let convertedBlobs = new Map();
 
-    // Drop zone events
     dropZone.addEventListener('click', () => fileInput.click());
 
     dropZone.addEventListener('dragover', (e) => {
@@ -40,11 +37,11 @@
     });
 
     qualitySlider.addEventListener('input', () => {
-        qualityValue.textContent = qualitySlider.value;
+        qualityValue.textContent = qualitySlider.value + '%';
     });
 
     convertBtn.addEventListener('click', convertAll);
-    downloadAllBtn.addEventListener('click', downloadZip);
+    downloadBtn.addEventListener('click', downloadZip);
     clearBtn.addEventListener('click', clearAll);
 
     function isHeic(file) {
@@ -64,9 +61,10 @@
 
     function addFiles(newFiles) {
         files = files.concat(newFiles);
-        controls.classList.add('visible');
-        convertBtn.disabled = false;
+        fileList.classList.add('visible');
+        actions.classList.add('visible');
         renderFileList();
+        resetConvertBtn();
     }
 
     function renderFileList() {
@@ -76,57 +74,40 @@
             const item = document.createElement('div');
             item.className = 'file-item';
 
-            const preview = document.createElement('div');
-            preview.className = 'file-item-preview';
-            if (blob) {
-                const img = document.createElement('img');
-                img.className = 'file-item-preview';
-                img.src = URL.createObjectURL(blob);
-                item.appendChild(img);
-            } else {
-                item.appendChild(preview);
-            }
+            const left = document.createElement('div');
+            left.className = 'file-item-left';
 
-            const info = document.createElement('div');
-            info.className = 'file-item-info';
-            const name = document.createElement('div');
+            const dot = document.createElement('div');
+            dot.className = 'file-dot' + (blob ? ' done' : '');
+
+            const name = document.createElement('span');
             name.className = 'file-item-name';
             name.textContent = file.name;
-            const size = document.createElement('div');
+
+            left.appendChild(dot);
+            left.appendChild(name);
+
+            const right = document.createElement('div');
+            right.className = 'file-item-right';
+
+            const size = document.createElement('span');
             size.className = 'file-item-size';
             size.textContent = formatSize(file.size);
             if (blob) {
-                size.textContent += ` → ${formatSize(blob.size)} JPG`;
+                size.textContent += ' → ' + formatSize(blob.size);
             }
-            info.appendChild(name);
-            info.appendChild(size);
-            item.appendChild(info);
-
-            const status = document.createElement('span');
-            status.className = 'file-item-status';
-            if (blob) {
-                status.className += ' status-done';
-                status.textContent = 'Done';
-            } else {
-                status.className += ' status-pending';
-                status.textContent = 'Pending';
-            }
-            item.appendChild(status);
+            right.appendChild(size);
 
             if (blob) {
-                const actions = document.createElement('div');
-                actions.className = 'file-item-actions';
                 const dlBtn = document.createElement('button');
-                dlBtn.className = 'btn btn-secondary btn-sm';
-                dlBtn.textContent = 'Download';
-                dlBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    downloadSingle(index);
-                });
-                actions.appendChild(dlBtn);
-                item.appendChild(actions);
+                dlBtn.className = 'file-item-download';
+                dlBtn.textContent = 'Save';
+                dlBtn.addEventListener('click', () => downloadSingle(index));
+                right.appendChild(dlBtn);
             }
 
+            item.appendChild(left);
+            item.appendChild(right);
             fileList.appendChild(item);
         });
     }
@@ -135,20 +116,14 @@
         if (!files.length) return;
 
         convertBtn.disabled = true;
-        convertBtn.textContent = 'Converting...';
-        downloadAllBtn.disabled = true;
-        progressContainer.classList.add('visible');
-        progressBar.style.width = '0%';
-
-        let completed = 0;
+        convertBtn.textContent = 'Converting…';
+        convertBtn.style.opacity = '0.6';
+        downloadBtn.classList.remove('visible');
 
         for (let i = 0; i < files.length; i++) {
-            if (convertedBlobs.has(i)) {
-                completed++;
-                continue;
-            }
+            if (convertedBlobs.has(i)) continue;
 
-            updateFileStatus(i, 'Converting...', 'status-converting');
+            setDotStatus(i, 'converting');
 
             try {
                 const blob = await heic2any({
@@ -156,75 +131,79 @@
                     toType: 'image/jpeg',
                     quality: qualitySlider.value / 100,
                 });
-
                 const result = Array.isArray(blob) ? blob[0] : blob;
                 convertedBlobs.set(i, result);
-                updateFileStatus(i, 'Done', 'status-done');
+                setDotStatus(i, 'done');
             } catch (err) {
-                console.error(`Error converting ${files[i].name}:`, err);
-                updateFileStatus(i, 'Error', 'status-error');
+                console.error('Error converting ' + files[i].name + ':', err);
+                setDotStatus(i, 'error');
             }
-
-            completed++;
-            progressBar.style.width = `${(completed / files.length) * 100}%`;
         }
 
-        convertBtn.textContent = 'Convert All';
-        convertBtn.disabled = false;
         renderFileList();
 
         if (convertedBlobs.size > 0) {
-            downloadAllBtn.disabled = false;
-        }
+            convertBtn.textContent = '✓ Converted';
+            convertBtn.style.opacity = '1';
+            convertBtn.classList.add('success');
+            downloadBtn.classList.add('visible');
 
-        if (convertedBlobs.size === 1) {
-            downloadSingle(convertedBlobs.keys().next().value);
+            if (convertedBlobs.size === 1) {
+                downloadSingle(convertedBlobs.keys().next().value);
+            }
+        } else {
+            resetConvertBtn();
         }
     }
 
-    function updateFileStatus(index, text, className) {
+    function setDotStatus(index, status) {
         const items = fileList.querySelectorAll('.file-item');
         if (!items[index]) return;
-        const status = items[index].querySelector('.file-item-status');
-        if (status) {
-            status.textContent = text;
-            status.className = 'file-item-status ' + className;
+        const dot = items[index].querySelector('.file-dot');
+        if (dot) {
+            dot.className = 'file-dot ' + status;
         }
+    }
+
+    function resetConvertBtn() {
+        convertBtn.textContent = 'Convert All';
+        convertBtn.style.opacity = '1';
+        convertBtn.style.background = '';
+        convertBtn.disabled = false;
+        convertBtn.classList.remove('success');
     }
 
     function downloadSingle(index) {
         const blob = convertedBlobs.get(index);
         if (!blob) return;
-        const name = getBaseName(files[index].name) + '.jpg';
-        saveAs(blob, name);
+        saveAs(blob, getBaseName(files[index].name) + '.jpg');
     }
 
     async function downloadZip() {
         if (convertedBlobs.size === 0) return;
 
-        downloadAllBtn.disabled = true;
-        downloadAllBtn.textContent = 'Zipping...';
+        downloadBtn.disabled = true;
+        downloadBtn.textContent = 'Zipping…';
 
         const zip = new JSZip();
         convertedBlobs.forEach((blob, index) => {
-            const name = getBaseName(files[index].name) + '.jpg';
-            zip.file(name, blob);
+            zip.file(getBaseName(files[index].name) + '.jpg', blob);
         });
 
         const content = await zip.generateAsync({ type: 'blob' });
         saveAs(content, 'heic-to-jpg.zip');
 
-        downloadAllBtn.textContent = 'Download ZIP';
-        downloadAllBtn.disabled = false;
+        downloadBtn.textContent = 'Download ZIP';
+        downloadBtn.disabled = false;
     }
 
     function clearAll() {
         files = [];
         convertedBlobs = new Map();
         fileList.innerHTML = '';
-        controls.classList.remove('visible');
-        progressContainer.classList.remove('visible');
-        progressBar.style.width = '0%';
-        downloadAllBtn.disabled = true;
+        fileList.classList.remove('visible');
+        actions.classList.remove('visible');
+        downloadBtn.classList.remove('visible');
+        resetConvertBtn();
     }
 })();
