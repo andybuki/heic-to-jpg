@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HEIC to JPG Converter — Free Online Tool</title>
+    <meta name="description" content="Convert HEIC photos to JPG instantly in your browser. Free, private, no upload required. Batch convert with quality control.">
+    <meta name="keywords" content="HEIC to JPG, HEIC converter, HEIF to JPEG, convert iPhone photos, batch HEIC converter">
+    <meta property="og:title" content="HEIC to JPG Converter — Free Online Tool">
+    <meta property="og:description" content="Convert HEIC photos to JPG instantly in your browser. Free, private, no upload required.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖼️</text></svg>">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HEIC <span class="arrow">→</span> JPG</h1>
+            <p class="subtitle">Convert HEIC photos to JPG instantly. 100% free, runs in your browser — nothing is uploaded.</p>
+        </header>
+
+        <div class="drop-zone" id="dropZone">
+            <div class="drop-zone-content">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p class="drop-text">Drop HEIC files here</p>
+                <p class="drop-subtext">or click to browse</p>
+            </div>
+            <input type="file" id="fileInput" accept=".heic,.heif" multiple hidden>
+        </div>
+
+        <div class="controls" id="controls">
+            <div class="control-group">
+                <label for="qualitySlider">JPG Quality: <span id="qualityValue">92</span>%</label>
+                <input type="range" id="qualitySlider" min="10" max="100" value="92">
+            </div>
+            <div class="control-buttons">
+                <button class="btn btn-primary" id="convertBtn">Convert All</button>
+                <button class="btn btn-secondary" id="downloadAllBtn" disabled>Download ZIP</button>
+                <button class="btn btn-ghost" id="clearBtn">Clear</button>
+            </div>
+        </div>
+
+        <div class="file-list" id="fileList"></div>
+
+        <div class="progress-bar-container" id="progressContainer">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+
+        <footer>
+            <div class="features">
+                <div class="feature">
+                    <strong>Private</strong>
+                    <span>Files never leave your device</span>
+                </div>
+                <div class="feature">
+                    <strong>Fast</strong>
+                    <span>Powered by WebAssembly</span>
+                </div>
+                <div class="feature">
+                    <strong>Free</strong>
+                    <span>No limits, no sign-up</span>
+                </div>
+            </div>
+            <p class="faq-heading">Frequently Asked Questions</p>
+            <div class="faq">
+                <details>
+                    <summary>What is a HEIC file?</summary>
+                    <p>HEIC (High Efficiency Image Container) is the default photo format on iPhones and iPads since iOS 11. It produces smaller files than JPG while maintaining the same quality, but many Windows programs, websites, and older devices can't open HEIC files.</p>
+                </details>
+                <details>
+                    <summary>Is this converter safe to use?</summary>
+                    <p>Yes. This tool runs entirely in your browser — your photos are never uploaded to any server. The conversion happens locally on your device using JavaScript, so your files stay completely private.</p>
+                </details>
+                <details>
+                    <summary>Is there a file size or quantity limit?</summary>
+                    <p>There are no artificial limits. You can convert as many files as you want, of any size. The only limit is your device's available memory, which is typically enough for hundreds of photos at once.</p>
+                </details>
+                <details>
+                    <summary>Does this work on mobile?</summary>
+                    <p>Yes! The converter works on any modern browser including Chrome, Safari, Firefox, and Edge on both desktop and mobile devices.</p>
+                </details>
+            </div>
+            <p class="copyright">&copy; 2026 HEIC to JPG Converter</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
