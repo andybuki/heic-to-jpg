@@ -403,12 +403,82 @@ h1 {
     padding-right: 24px;
 }
 
+/* Legal pages */
+.legal-content {
+    width: 100%;
+    margin-top: 16px;
+    margin-bottom: 64px;
+}
+
+.legal-content h1 {
+    font-size: 32px;
+    margin-bottom: 32px;
+}
+
+.legal-content h2 {
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #1D1D1F;
+    margin: 32px 0 12px;
+}
+
+.legal-content h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1D1D1F;
+    margin: 24px 0 8px;
+}
+
+.legal-content p {
+    font-size: 14px;
+    color: #52525B;
+    line-height: 1.7;
+    margin: 0 0 12px;
+}
+
+.legal-content ul {
+    font-size: 14px;
+    color: #52525B;
+    line-height: 1.7;
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+
+.legal-content a {
+    color: #1D1D1F;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.legal-content a:hover {
+    color: #86868B;
+}
+
 /* Footer */
 footer {
     width: 100%;
     padding: 24px 0 40px;
     text-align: center;
     border-top: 1px solid #E8E8ED;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 12px;
+}
+
+.footer-links a {
+    font-size: 12px;
+    color: #86868B;
+    text-decoration: none;
+    transition: color 0.15s;
+}
+
+.footer-links a:hover {
+    color: #1D1D1F;
 }
 
 footer p {
